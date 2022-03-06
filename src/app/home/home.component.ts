@@ -89,7 +89,8 @@ export class HomeComponent implements OnInit {
         amount: [
           '',
           [
-            Validators.required
+            Validators.required,
+            Validators.pattern('^[0-9.,]+$')
           ]
         ],
         notes: [
@@ -161,7 +162,7 @@ export class HomeComponent implements OnInit {
     this.submitted = true;
 
     if (this.form.invalid) {
-      // console.log(this.f);
+      console.log(this.f);
       return;
     }
     // Add transaction
@@ -200,28 +201,37 @@ export class HomeComponent implements OnInit {
   }
 
   amountValidation(event: any){
-    // this.amountError=false;
-    // this.amountErrorMsg="";
-    // let amount = event.target.value;
-    // let newAmount = amount.split(",").join("");
+    this.amountError=false;
+    this.amountErrorMsg="";
+    let amount = event.target.value;
+    let dotSplitAmount = amount.split(".");
 
-    // newAmount = parseFloat(newAmount);
-    // if(Number(newAmount) === newAmount && newAmount % 1 !== 0){
-      
-    // }else{
-    //   if(Number(newAmount) === newAmount && newAmount % 1 === 0){
+    if(dotSplitAmount.length>2){
+        this.amountError = true;
+        this.amountErrorMsg="Amount is invalid";
+    }else{
+      if(dotSplitAmount[1]){
+        if(dotSplitAmount[1].includes(',')){
+          this.amountError = true;
+          this.amountErrorMsg="Amount is invalid";
+        }
+      }
+      let newAmount = amount.split(",").join("");
+      amount = +newAmount;
+      console.log(amount);
+      if(amount>=50 && amount<=20000000){
+        return true;
+      }else{
+        this.amountError = true;
+        this.amountErrorMsg="Amount should be in between 50 and 20000000";
+      }
+    }
 
-    //   }else{
-    //     this.amountError = true;
-    //     this.amountErrorMsg="Invalid Amount Entered";
-    //   }
-    // }
-
-    
-    // console.log(this.amountError,this.amountErrorMsg,"****");
-    // console.log(event.target.value);
-    // ^\s*(?=.*[1-9])\d*(?:\.\d{1,2})?\s*$
-    return true;
+    if(this.amountError==true){
+      return false;
+    }else{
+      return true;
+    }
   }
 
   // Apply filter for mat table

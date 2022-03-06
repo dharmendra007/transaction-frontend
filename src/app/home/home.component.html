@@ -126,10 +126,11 @@
                 <input type="text" formControlName="amount" [(ngModel)]="amount" class="form-control" (keyup)=amountValidation($event) [ngClass]="{ 'is-invalid': submitted && f['amount'].errors }" />
                 <div *ngIf="submitted && f['amount'].errors" class="invalid-feedback">
                     <div *ngIf="f['amount']['errors']['required']">Amount is required</div>
+                    <div *ngIf="f['amount']['errors']['pattern']">Amount is invalid</div>
                 </div>
-                <!-- <div *ngIf="amountError" class="customError">
+                <div *ngIf="amountError" class="customError">
                     {{amountErrorMsg}}
-                </div> -->
+                </div>
             </div>
             <div class="form-group formSection">
                 <label>Notes</label>
@@ -138,7 +139,9 @@
                     <div *ngIf="f['notes']['errors']['required']">Notes is required</div>
                 </div>
             </div>
-            <input type="hidden" formControlName="isEditBox" [(ngModel)]="isEditBox" class="form-control" />
+            <div class="form-group formSection">
+                <input type="hidden" formControlName="isEditBox" [(ngModel)]="isEditBox" class="form-control" />
+            </div>
             <div class="form-group formSection">
                 <div class="row">
                     <div class="col-sm-5" *ngIf="isEdit==false">
