@@ -1,0 +1,41 @@
+.head {
+    padding: 1rem;
+}
+
+.agGridTable {
+    padding: 20px 0px;
+}
+
+.icons {
+    display: flex;
+    /* justify-content: space-around; */
+}
+
+.icons>div {
+    padding: 15px;
+}
+
+.formSection {
+    padding: 10px;
+}
+
+.customError {
+    width: 100%;
+    margin-top: 0.25rem;
+    font-size: 0.875em;
+    color: #dc3545;
+}
+
+.deleteConfirmation {
+    padding: 10px;
+}
+
+.searchBox {
+    border: 1px solid;
+    padding: 5px;
+    border-radius: 3px;
+}
+
+.addBtn {
+    padding: 10px;
+}

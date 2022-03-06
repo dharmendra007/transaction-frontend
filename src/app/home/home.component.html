@@ -1,0 +1,186 @@
+<div class="container-fluid head">
+    <div class="head">
+        <div class="row">
+            <div class="col-sm-6 addBtn">
+                <button class="btn btn-success" (click)="triggerModal(modalData); changeIsEdit();">Add Transaction</button>
+            </div>
+            <div class="col-sm-4"></div>
+            <div class="col-sm-2">
+                <div class="icons">
+                    <div>
+                        <input matInput (keyup)="applyFilter($event)" placeholder="Search Something..." #input class="searchBox">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row agGridTable">
+            <!-- <div class="col-sm-1"></div> -->
+            <!-- <div class="col-sm-12">
+                <ag-grid-angular style="width: 1200px; height: 500px;" [defaultColDef]="defaultColDef" class="ag-theme-balham" [rowData]="rowData" [columnDefs]="columnDefs" (gridReady)="onGridReady($event)">
+                </ag-grid-angular>
+            </div> -->
+            <!-- <div class="col-sm-2"></div> -->
+
+            <table mat-table [dataSource]="dataSource" class="mat-elevation-z8" matSort>
+
+                <!-- Position Column -->
+                <ng-container matColumnDef="accountholder">
+                    <th mat-header-cell *matHeaderCellDef mat-sort-header sortActionDescription="Sort by account_holder">
+                        Account holder
+                    </th>
+                    <td mat-cell *matCellDef="let element"> {{element.accountholder}} </td>
+                </ng-container>
+
+                <!-- Name Column -->
+                <ng-container matColumnDef="iban">
+                    <th mat-header-cell *matHeaderCellDef mat-sort-header sortActionDescription="Sort by iban">
+                        IBAN
+                    </th>
+                    <td mat-cell *matCellDef="let element"> {{element.iban}} </td>
+                </ng-container>
+
+                <ng-container matColumnDef="tdate">
+                    <th mat-header-cell *matHeaderCellDef mat-sort-header sortActionDescription="Sort by tdate">
+                        Date
+                    </th>
+                    <td mat-cell *matCellDef="let element"> {{chnageToDate(element.tdate)}} </td>
+                </ng-container>
+
+                <ng-container matColumnDef="amount">
+                    <th mat-header-cell *matHeaderCellDef mat-sort-header sortActionDescription="Sort by amount">
+                        Amount
+                    </th>
+                    <td mat-cell *matCellDef="let element"> € {{element.amount}} </td>
+                </ng-container>
+
+                <ng-container matColumnDef="notes">
+                    <th mat-header-cell *matHeaderCellDef mat-sort-header sortActionDescription="Sort by note">
+                        Note
+                    </th>
+                    <td mat-cell *matCellDef="let element"> {{element.notes}} </td>
+                </ng-container>
+
+                <!-- Weight Column -->
+                <ng-container matColumnDef="op">
+                    <th mat-header-cell *matHeaderCellDef>
+                        Edit/Delete
+                    </th>
+                    <td mat-cell *matCellDef="let element">
+                        <div class="icons">
+                            <div>
+                                <!-- <a routerLink="/addEditPost/{{element.id}}"> -->
+                                <i class="fa fa-edit" title="Edit" style="color:green" (click)="getSingleTransaction(element.tid); triggerModal(modalData);"></i>
+                                <!-- </a> -->
+                            </div>
+                            <div>
+                                <i class="fa fa-trash" title="Delete" style="color:red" (click)="triggerDeleteModal(modalDeleteData); storeId(element.tid)"></i>
+                            </div>
+                        </div>
+                    </td>
+                </ng-container>
+
+
+
+                <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+                <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+            </table>
+            <mat-paginator [pageSizeOptions]="[10, 25, 100]"></mat-paginator>
+        </div>
+
+    </div>
+</div>
+
+
+<ng-template #modalData let-modal>
+    <div class="modal-header">
+        <h4 class="modal-title" id="modal-basic-title">{{action}} Transaction</h4>
+        <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+      <span aria-hidden="true">×</span>
+    </button>
+    </div>
+    <div class="modal-body">
+        <form [formGroup]="form" (ngSubmit)="onSubmit()">
+            <div class="form-group formSection">
+                <label>Account Holder Name</label>
+                <input type="text" formControlName="accountholder" class="form-control" [(ngModel)]="accountholder" [ngClass]="{ 'is-invalid': submitted && f['accountholder'].errors }" />
+                <div *ngIf="submitted && f['accountholder'].errors" class="invalid-feedback">
+                    <div *ngIf="f['accountholder']['errors']['required']">Account holder name is required</div>
+                </div>
+            </div>
+            <div class="form-group formSection">
+                <label>IBAN</label>
+                <input type="text" formControlName="iban" class="form-control" [(ngModel)]="iban" [ngClass]="{ 'is-invalid': submitted && f['iban'].errors }" />
+                <div *ngIf="submitted && f['iban'].errors" class="invalid-feedback">
+
+                    <div *ngIf="f['iban']['errors']['required']">
+                        IBAN is required.
+                    </div>
+                    <div *ngIf="f['iban']['errors']['iban']">
+                        IBAN is invalid
+                    </div>
+                </div>
+            </div>
+            <div class="form-group formSection">
+                <label>Amount</label>
+                <input type="text" formControlName="amount" [(ngModel)]="amount" class="form-control" (keyup)=amountValidation($event) [ngClass]="{ 'is-invalid': submitted && f['amount'].errors }" />
+                <div *ngIf="submitted && f['amount'].errors" class="invalid-feedback">
+                    <div *ngIf="f['amount']['errors']['required']">Amount is required</div>
+                </div>
+                <!-- <div *ngIf="amountError" class="customError">
+                    {{amountErrorMsg}}
+                </div> -->
+            </div>
+            <div class="form-group formSection">
+                <label>Notes</label>
+                <input type="text" formControlName="notes" [(ngModel)]="notes" class="form-control" [ngClass]="{ 'is-invalid': submitted && f['notes'].errors }" />
+                <div *ngIf="submitted && f['notes'].errors" class="invalid-feedback">
+                    <div *ngIf="f['notes']['errors']['required']">Notes is required</div>
+                </div>
+            </div>
+            <input type="hidden" formControlName="isEditBox" [(ngModel)]="isEditBox" class="form-control" />
+            <div class="form-group formSection">
+                <div class="row">
+                    <div class="col-sm-5" *ngIf="isEdit==false">
+                        <button type="submit" class="btn btn-primary">Add</button>
+                    </div>
+                    <div class="col-sm-5" *ngIf="isEdit==true">
+                        <button type="submit" class="btn btn-info">Edit</button>
+                    </div>
+                    <div class="col-sm-5">
+                        <button type="button" (click)="onReset()" class="btn btn-warning float-right">Reset</button>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+    <div class="modal-footer">
+        <button type="button" class="btn btn-danger" (click)="modal.close('Save click')">Close</button>
+    </div>
+</ng-template>
+
+
+<ng-template #modalDeleteData let-modal>
+    <div class="modal-header">
+        <h4 class="modal-title" id="modal-basic-delete">Delete Confirmation</h4>
+        <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+      <span aria-hidden="true">×</span>
+    </button>
+    </div>
+    <div class="modal-body">
+        Are you really want to delete this transaction details?
+        <div class="row deleteConfirmation">
+            <div class="col-sm-2"></div>
+            <div class="col-sm-3">
+                <button type="submit" class="btn btn-primary" (click)="deleteTtansaction()">Yes</button>
+            </div>
+            <div class="col-sm-2"></div>
+            <div class="col-sm-3">
+                <button type="submit" class="btn btn-danger" (click)="modal.close('Save click')">No</button>
+            </div>
+        </div>
+    </div>
+    <div class="modal-footer">
+        <button type="button" class="btn btn-danger" (click)="modal.close('Save click')">Close</button>
+    </div>
+</ng-template>
