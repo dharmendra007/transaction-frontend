@@ -90,7 +90,7 @@ export class HomeComponent implements OnInit {
           '',
           [
             Validators.required,
-            Validators.pattern('^[0-9.,]+$')
+            Validators.pattern('^[0-9.,]*$')
           ]
         ],
         notes: [
@@ -161,7 +161,7 @@ export class HomeComponent implements OnInit {
   onSubmit(): void {
     this.submitted = true;
 
-    if (this.form.invalid) {
+    if (this.form.invalid || this.amountError==true) {
       console.log(this.f);
       return;
     }
