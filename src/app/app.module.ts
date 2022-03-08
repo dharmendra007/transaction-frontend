@@ -13,7 +13,7 @@ import { MatTableModule } from '@angular/material/table'
 import { MatPaginatorModule } from '@angular/material/paginator';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { MatSortModule } from '@angular/material/sort';
-import { FormsModule } from '@angular/forms';
+import { FormsModule,FormBuilder } from '@angular/forms';
 import { ReactiveFormsModule } from '@angular/forms';
 import {MatInputModule} from '@angular/material/input';
 import {MatCheckboxModule} from '@angular/material/checkbox';
@@ -28,7 +28,7 @@ import { HomeComponent } from './home/home.component';
 @NgModule({
   declarations: [
     AppComponent,
-    HomeComponent
+    HomeComponent,
   ],
   imports: [
     BrowserModule,
@@ -39,6 +39,7 @@ import { HomeComponent } from './home/home.component';
     BrowserAnimationsModule,
     MatSortModule,
     FormsModule,
+    FormBuilder,
     ReactiveFormsModule,
     MatInputModule,
     MatCheckboxModule,
@@ -53,8 +54,9 @@ import { HomeComponent } from './home/home.component';
     AgGridModule.withComponents([])
   ],
   providers: [
-    { provide: HTTP_INTERCEPTORS, useClass: AuthInterceptor, multi: true }
-  ],
+    { provide: HTTP_INTERCEPTORS, useClass: AuthInterceptor, multi: true },
+    FormBuilder
+    ],
   bootstrap: [AppComponent]
 })
 

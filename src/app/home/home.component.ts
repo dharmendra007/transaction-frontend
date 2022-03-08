@@ -1,4 +1,4 @@
-import { Component, OnInit,ViewChild } from '@angular/core';
+import { Component, OnInit,ViewChild,Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import {MatSort} from '@angular/material/sort';
 import {MatTableDataSource} from '@angular/material/table';
@@ -6,7 +6,7 @@ import { MatPaginator } from '@angular/material/paginator';
 import {ModalDismissReasons, NgbModal} from '@ng-bootstrap/ng-bootstrap';
 import {ValidatorService} from 'angular-iban';
 import { ToastrService } from 'ngx-toastr';
-
+import { Observable } from 'rxjs';
 import {
   AbstractControl,
   FormBuilder,
@@ -24,12 +24,21 @@ export interface dataSet {
   note:string
 }
 
+export interface Post {
+  tid: number;
+}
+
 
 @Component({
   selector: 'app-home',
   templateUrl: './home.component.html',
   styleUrls: ['./home.component.css']
 })
+
+@Injectable({
+  providedIn: 'root'
+})
+
 export class HomeComponent implements OnInit {
 
   displayedColumns: string[] = ['accountholder', 'iban','tdate',"amount","notes","op"];
@@ -278,6 +287,14 @@ export class HomeComponent implements OnInit {
       error => {
         console.log(error); 
       })
+  }
+
+
+  getAllTransactionTest():Observable<Post[]>{
+    // console.log(this.http.get<Post[]>("/getTransaction"));
+    let data = this.http.get<Post[]>('/getTransaction');
+    console.log(data);
+    return data;
   }
 
 }
