@@ -7,6 +7,8 @@ import {ModalDismissReasons, NgbModal} from '@ng-bootstrap/ng-bootstrap';
 import {ValidatorService} from 'angular-iban';
 import { ToastrService } from 'ngx-toastr';
 import { Observable } from 'rxjs';
+import { Transaction } from '../models/transaction.model';
+
 import {
   AbstractControl,
   FormBuilder,
@@ -14,6 +16,10 @@ import {
   Validators,
   FormControl
 } from '@angular/forms';
+import { AppState } from '../store/app.state';
+import { Store } from '@ngrx/store';
+import { getTransaction, getTransactionById } from '../state/transaction.selector';
+import { addTrans, deleteTrans, loadTrans, updateTrans } from '../actions/transaction.action';
 
 export interface dataSet {
   id:string,
@@ -63,12 +69,16 @@ export class HomeComponent implements OnInit {
   resp:any={};
   transId:Number=0;
   isEdit=false;
+  tdate="";
+  editData:any
+
+  transaction:Observable<Transaction[]> | undefined
 
   @ViewChild(MatSort, { static: true }) sort!: MatSort;
   @ViewChild(MatPaginator, { static: true }) paginator!: MatPaginator;
   @ViewChild('modulePaginator') modulePaginator!: MatPaginator;
 
-  constructor(private http: HttpClient,private modalService: NgbModal,private formBuilder: FormBuilder,
+  constructor(private store:Store<AppState>, private http: HttpClient,private modalService: NgbModal,private formBuilder: FormBuilder,
     private toastr: ToastrService) { 
   }
 
@@ -111,30 +121,38 @@ export class HomeComponent implements OnInit {
       }
     );
 
-      this.getAllTransaction();
+    
+  this.getAllTransaction(); 
 
-      this.dataSource=new MatTableDataSource(this.transactionData);
-      this.dataSource.paginator = this.paginator;
-      this.dataSource.sort = this.sort;
+  // this.dataSource=new MatTableDataSource(this.transactionData);
+  // this.dataSource.paginator = this.paginator;
+  // this.dataSource.sort = this.sort;
   }
 
   // Get All Transaction
   getAllTransaction(){
-      this.http.get("/getTransaction").subscribe(data => {
-      this.transactionData=data;
-      this.dataSource=new MatTableDataSource(this.transactionData.transData);
-      this.dataSource.paginator = this.paginator;
-      this.dataSource.sort = this.sort;
-    },
-      error => {
-        console.log(error); 
-      })
+    this.store.select(getTransaction).pipe().subscribe(
+      data=> {
+        this.transactionData=data
+        console.log("this.transactionData",this.transactionData);
+        this.dataSource=new MatTableDataSource(this.transactionData);
+        this.dataSource.paginator = this.paginator;
+        this.dataSource.sort = this.sort;
+      }
+    );
+
+    this.store.dispatch(loadTrans());
+    console.log(this.transactionData);
   }
 
   chnageToDate(date:any){
-    let dateVal=date.split('T')[0];
-    let chnageToDateSplit=dateVal.split("-").reverse().join("-");
-    return chnageToDateSplit;
+      if(date.includes("T")){
+        let dateVal=date.split('T')[0];
+        let chnageToDateSplit=dateVal.split("-").reverse().join("-");
+        return chnageToDateSplit;
+      }else{
+        return date;
+      }
   }
   
   triggerModal(content: any) {
@@ -176,26 +194,30 @@ export class HomeComponent implements OnInit {
     }
     // Add transaction
     if(this.isEditBox==0){
-      this.http.post("/addTransaction", this.form.value).subscribe(data => {
-        this.resp=data;
-        this.getAllTransaction();
-        this.modalService.dismissAll();
-        this.toastr.success(this.resp.msg);
-        this.onReset();
-      },error => {
-          console.log(error); 
-      });
+      this.form.value.tid="";
+      var today = new Date();
+      var dd = String(today.getDate()).padStart(2, '0');
+      var mm = String(today.getMonth() + 1).padStart(2, '0'); //January is 0!
+      var yyyy = today.getFullYear();
+      let todayDate = dd + '-' + mm + '-' + yyyy;
+
+      this.form.value.tdate=todayDate;
+      const transaction:Transaction = this.form.value;
+      this.store.dispatch(addTrans({transaction}));
+      this.modalService.dismissAll();
+      this.toastr.success("Transaction Added Successfully...");
+      this.onReset();
+
     }else{
-      // Edit transaction
-      this.http.put("/editTransaction/"+this.transId, this.form.value).subscribe(data => {
-        this.resp=data;
-        this.getAllTransaction();
-        this.modalService.dismissAll();
-        this.toastr.success(this.resp.msg);
-        this.onReset();
-      },error => {
-          console.log(error); 
-      });
+      this.editData = this.form.value;
+      this.editData.tid = this.transId;
+      this.editData.tdate = this.tdate;
+      const transaction:Transaction = this.editData;
+      this.store.dispatch(updateTrans({transaction}));
+      this.modalService.dismissAll();
+      this.toastr.success("Transaction Updated Successfully...");
+      this.onReset();
+      
     }
   }
 
@@ -260,15 +282,10 @@ export class HomeComponent implements OnInit {
   
   // Delete Transaction Method
   deleteTtansaction(){
-    this.http.delete(`/deleteTransaction/${this.transId}`).subscribe(data => {
-      this.resp=data;
-      this.getAllTransaction();
-      this.modalService.dismissAll();
-      this.toastr.success(this.resp.msg);
-    },
-      error => {
-        console.log(error); 
-      })
+    this.store.dispatch(deleteTrans({tid:this.transId}));
+    
+    // this.modalService.dismissAll();
+    // this.toastr.success("Transaction Deleted Successfully...");
   }
 
   // Get Single transaction details
@@ -277,16 +294,17 @@ export class HomeComponent implements OnInit {
     this.isEdit = true;
     this.isEditBox=1;
 
-    this.http.get(`/getTransaction/${this.transId}`).subscribe(data => {
-      this.resp=data;
-      this.accountholder = this.resp.data.accountholder;
-      this.iban = this.resp.data.iban;
-      this.amount = this.resp.data.amount;
-      this.notes = this.resp.data.notes;
-    },
-      error => {
-        console.log(error); 
-      })
+    this.store.select(getTransactionById,{"tid":this.transId}).pipe().subscribe(
+      data=> {
+        console.log(data);
+        this.resp=data;
+        this.accountholder = this.resp.accountholder;
+        this.iban = this.resp.iban;
+        this.amount = this.resp.amount;
+        this.notes = this.resp.notes;
+        this.tdate = this.resp.tdate;
+      }
+    );
   }
 
 

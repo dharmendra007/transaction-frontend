@@ -21,6 +21,8 @@
         "@angular/platform-browser-dynamic": "~13.1.0",
         "@angular/router": "~13.1.0",
         "@ng-bootstrap/ng-bootstrap": "^12.0.0",
+        "@ngrx/effects": "^13.0.2",
+        "@ngrx/store": "^13.0.2",
         "ag-grid": "^18.1.2",
         "ag-grid-angular": "^27.0.0",
         "ag-grid-community": "^27.0.1",
@@ -51,5 +53,8 @@
         "karma-jasmine-html-reporter": "~1.7.0",
         "typescript": "~4.5.2"
     },
-    "engines": { "node": "16.13.1", "npm": "8.1.2" }
+    "engines": {
+        "node": "16.13.1",
+        "npm": "8.1.2"
+    }
 }

@@ -1,3 +1,6 @@
+<!-- <div *ngFor="let t of transactionData | async">
+    {{t.account_holder}}
+</div> -->
 <div class="container-fluid head">
     <div class="head">
         <div class="row">
@@ -26,7 +29,7 @@
 
                 <!-- Position Column -->
                 <ng-container matColumnDef="accountholder">
-                    <th mat-header-cell *matHeaderCellDef mat-sort-header sortActionDescription="Sort by account_holder">
+                    <th mat-header-cell *matHeaderCellDef mat-sort-header sortActionDescription="Sort by accountholder">
                         Account holder
                     </th>
                     <td mat-cell *matCellDef="let element"> {{element.accountholder}} </td>

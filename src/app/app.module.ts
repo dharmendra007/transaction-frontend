@@ -13,8 +13,8 @@ import { MatTableModule } from '@angular/material/table'
 import { MatPaginatorModule } from '@angular/material/paginator';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { MatSortModule } from '@angular/material/sort';
-import { FormsModule,FormBuilder } from '@angular/forms';
-import { ReactiveFormsModule } from '@angular/forms';
+import { FormsModule,FormBuilder,ReactiveFormsModule } from '@angular/forms';
+// import { ReactiveFormsModule } from '@angular/forms';
 import {MatInputModule} from '@angular/material/input';
 import {MatCheckboxModule} from '@angular/material/checkbox';
 import { AgGridModule } from 'ag-grid-angular';
@@ -22,13 +22,17 @@ import { MdbModalModule } from 'mdb-angular-ui-kit/modal';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { AngularIbanModule } from 'angular-iban';
 import { ToastrModule } from 'ngx-toastr';
+import {StoreModule} from '@ngrx/store';
+import {appReducer} from '../app/store/app.state';
 
 import { HomeComponent } from './home/home.component';
+import { EffectsModule } from '@ngrx/effects';
+import { TransactionEffects } from './state/transaction.effects';
 
 @NgModule({
   declarations: [
     AppComponent,
-    HomeComponent,
+    HomeComponent
   ],
   imports: [
     BrowserModule,
@@ -39,7 +43,7 @@ import { HomeComponent } from './home/home.component';
     BrowserAnimationsModule,
     MatSortModule,
     FormsModule,
-    FormBuilder,
+    // FormBuilder,
     ReactiveFormsModule,
     MatInputModule,
     MatCheckboxModule,
@@ -51,7 +55,9 @@ import { HomeComponent } from './home/home.component';
       positionClass: 'toast-top-right',
       preventDuplicates: true,
     }),
-    AgGridModule.withComponents([])
+    AgGridModule.withComponents([]),
+    StoreModule.forRoot(appReducer),
+    EffectsModule.forRoot([TransactionEffects])
   ],
   providers: [
     { provide: HTTP_INTERCEPTORS, useClass: AuthInterceptor, multi: true },
