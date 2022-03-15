@@ -284,8 +284,8 @@ export class HomeComponent implements OnInit {
   deleteTtansaction(){
     this.store.dispatch(deleteTrans({tid:this.transId}));
     
-    // this.modalService.dismissAll();
-    // this.toastr.success("Transaction Deleted Successfully...");
+    this.modalService.dismissAll();
+    this.toastr.success("Transaction Deleted Successfully...");
   }
 
   // Get Single transaction details
